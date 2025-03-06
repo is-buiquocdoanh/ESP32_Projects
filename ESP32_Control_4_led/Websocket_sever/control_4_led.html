@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Điều khiển 4 LED qua WebSocket</title>
+</head>
+<body>
+  <h1>Điều khiển 4 LED qua ESP32</h1>
+  
+  <h3>LED 1</h3>
+  <button onclick="sendCommand('led1_on')">Bật</button>
+  <button onclick="sendCommand('led1_off')">Tắt</button>
+  
+  <h3>LED 2</h3>
+  <button onclick="sendCommand('led2_on')">Bật</button>
+  <button onclick="sendCommand('led2_off')">Tắt</button>
+  
+  <h3>LED 3</h3>
+  <button onclick="sendCommand('led3_on')">Bật</button>
+  <button onclick="sendCommand('led3_off')">Tắt</button>
+  
+  <h3>LED 4</h3>
+  <button onclick="sendCommand('led4_on')">Bật</button>
+  <button onclick="sendCommand('led4_off')">Tắt</button>
+  
+  <p>Trạng thái kết nối: <span id="status">Chưa kết nối</span></p>
+  <p>Phản hồi: <span id="response"></span></p>
+
+  <script>
+    // IP mặc định của ESP32 trong chế độ AP
+    const socket = new WebSocket('ws://192.168.4.1:81/');
+
+    socket.onopen = function() {
+      document.getElementById('status').innerText = 'Đã kết nối';
+    };
+
+    socket.onmessage = function(event) {
+      document.getElementById('response').innerText = event.data;
+    };
+
+    socket.onclose = function() {
+      document.getElementById('status').innerText = 'Mất kết nối';
+    };
+
+    function sendCommand(command) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(command);
+      } else {
+        alert('Chưa kết nối tới ESP32!');
+      }
+    }
+  </script>
+</body>
+</html>
