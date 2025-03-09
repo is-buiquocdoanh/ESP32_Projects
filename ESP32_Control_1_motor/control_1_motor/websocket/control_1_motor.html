@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bật/Tắt Động cơ qua WebSocket</title>
+</head>
+<body>
+  <h1>Điều khiển Động cơ qua ESP32</h1>
+  
+  <h3>Động cơ</h3>
+  <button onclick="sendCommand('motor_on')">Bật</button>
+  <button onclick="sendCommand('motor_off')">Tắt</button>
+  
+  <p>Trạng thái kết nối: <span id="status">Chưa kết nối</span></p>
+  <p>Phản hồi: <span id="response"></span></p>
+
+  <script>
+    const socket = new WebSocket('ws://192.168.4.1:81/');
+
+    socket.onopen = function() {
+      document.getElementById('status').innerText = 'Đã kết nối';
+    };
+
+    socket.onmessage = function(event) {
+      document.getElementById('response').innerText = event.data;
+    };
+
+    socket.onclose = function() {
+      document.getElementById('status').innerText = 'Mất kết nối';
+    };
+
+    function sendCommand(command) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(command);
+      } else {
+        alert('Chưa kết nối tới ESP32!');
+      }
+    }
+  </script>
+</body>
+</html>

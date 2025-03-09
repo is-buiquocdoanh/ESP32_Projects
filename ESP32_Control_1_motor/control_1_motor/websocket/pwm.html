@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Điều khiển Động cơ qua WebSocket</title>
+</head>
+<body>
+  <h1>Điều khiển Động cơ qua ESP32</h1>
+  
+  <h3>Tốc độ động cơ</h3>
+  <input type="range" min="0" max="255" value="0" id="motorSpeed" oninput="updateSpeed()">
+  <span id="speedValue">0</span>
+  
+  <h3>Hướng quay</h3>
+  <button onclick="setDirection('forward')">Quay thuận</button>
+  <button onclick="setDirection('reverse')">Quay ngược</button>
+  
+  <p>Trạng thái kết nối: <span id="status">Chưa kết nối</span></p>
+  <p>Phản hồi: <span id="response"></span></p>
+
+  <script>
+    const socket = new WebSocket('ws://192.168.4.1:81/');
+    let direction = 'forward'; // Hướng mặc định
+
+    socket.onopen = function() {
+      document.getElementById('status').innerText = 'Đã kết nối';
+    };
+
+    socket.onmessage = function(event) {
+      document.getElementById('response').innerText = event.data;
+    };
+
+    socket.onclose = function() {
+      document.getElementById('status').innerText = 'Mất kết nối';
+    };
+
+    function updateSpeed() {
+      const speed = document.getElementById('motorSpeed').value;
+      document.getElementById('speedValue').innerText = speed;
+      const command = `${direction}:${speed}`;
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(command);
+      } else {
+        alert('Chưa kết nối tới ESP32!');
+      }
+    }
+
+    function setDirection(dir) {
+      direction = dir;
+      updateSpeed(); // Cập nhật ngay khi đổi hướng
+      document.getElementById('response').innerText = `Hướng: ${dir}`;
+    }
+  </script>
+</body>
+</html>
